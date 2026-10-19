@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 import fcntl
@@ -20,6 +19,7 @@ from pathlib import Path
 GRAYLOG_HOST = os.environ.get(
     "GRAYLOG_GELF_HOST",
     "127.0.0.1",
+    "timer",
 )
 
 GRAYLOG_PORT = int(
