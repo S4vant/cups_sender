@@ -25,7 +25,11 @@ GRAYLOG_PORT = int(
     os.environ.get("GRAYLOG_GELF_PORT", "12201")
 )
 
-STATE_DIR = Path("/var/lib/cups-graylog")
+JOURNAL_UNIT = os.environ.get("CUPS_JOURNAL_UNIT", "cups")
+
+STATE_DIR = Path(
+    os.environ.get("CUPS_STATE_DIR", "/var/lib/cups-graylog")
+)
 STATE_FILE = STATE_DIR / "state.json"
 LOCK_FILE = STATE_DIR / "agent.lock"
 
@@ -123,10 +127,8 @@ def save_state(state):
 
 def read_journal(state, now):
     command = [
-        "journalctl",
-        "-u", "cups",
-        "--no-pager",
-        "-o", "json",
+        "journalctl", "-u", JOURNAL_UNIT,
+        "--no-pager", "-o", "json",
         f"--until=@{now}",
     ]
 
