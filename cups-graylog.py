@@ -16,6 +16,8 @@ from pathlib import Path
 # Configuration
 # ============================================================
 
+START_FROM_NULL = os.environ.get("CUPS_START_FROM_NULL", "false").lower() == "true"
+
 GRAYLOG_HOST = os.environ.get(
     "GRAYLOG_GELF_HOST",
     "127.0.0.1",
@@ -34,7 +36,7 @@ STATE_FILE = STATE_DIR / "state.json"
 LOCK_FILE = STATE_DIR / "agent.lock"
 
 # Initial scan window on the first launch.
-INITIAL_LOOKBACK = 600
+INITIAL_LOOKBACK = int(os.environ.get("CUPS_INITIAL_LOOKBACK", "600"))
 
 # How long to retain deduplication keys.
 SENT_RETENTION = 30 * 24 * 60 * 60
@@ -416,7 +418,12 @@ def main():
             print("Another agent instance is running")
             return 0
 
-        state = load_state()
+        if START_FROM_NULL:
+            print("Starting from null cursor as requested")
+            state = initial_state()
+        else:
+            state = load_state()
+    
         now = int(time.time())
 
         # Read journal events after the saved cursor.
